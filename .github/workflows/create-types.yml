@@ -1,0 +1,80 @@
+name: Update PokéAPI Types
+
+on:
+  workflow_dispatch:
+
+permissions: {}
+
+jobs:
+  # JOB 1: Heavy lifting (Zero repository write permissions)
+  generate-types:
+    runs-on: ubuntu-latest
+    permissions: {}
+    steps:
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: '24'
+
+      - name: Fetch openapi.yml and generate types
+        run: |
+          curl --fail --silent --show-error --location \
+            "https://raw.githubusercontent.com/PokeAPI/pokeapi/refs/heads/master/openapi.yml" \
+            -o ./openapi.yml
+
+          npx openapi-typescript@latest ./openapi.yml -o ./pokeapi.d.ts
+
+      - name: Upload generated types as artifact
+        uses: actions/upload-artifact@v6
+        with:
+          name: pokeapi-types
+          path: ./pokeapi.d.ts
+          retention-days: 1
+
+  # JOB 2: Privileged PR creation with deterministic content-hash branch
+  create-pr:
+    needs: generate-types
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Download generated types
+        uses: actions/download-artifact@v8
+        with:
+          name: pokeapi-types
+          path: ./sandbox-apps/pokedex/src/types
+
+      - name: Commit to content-hash branch and open PR
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          mkdir -p ./sandbox-apps/pokedex/src/types
+          TARGET_FILE="./sandbox-apps/pokedex/src/types/pokeapi.d.ts"
+
+          git add -- "$TARGET_FILE"
+
+          if git diff --cached --quiet; then
+            echo "No changes detected compared to default branch."
+            exit 0
+          fi
+
+          sha256sum "$TARGET_FILE" | cut -c1-12 > /tmp/file_hash.txt
+          read -r FILE_HASH < /tmp/file_hash.txt
+          BRANCH="chore/pokeapi-types-${FILE_HASH}"
+
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          git checkout -b "${BRANCH}"
+          git commit -m "chore: update PokéAPI types ${FILE_HASH}"
+          git push origin "${BRANCH}"
+
+          gh pr create \
+            --title "chore: update PokéAPI types ${FILE_HASH}" \
+            --body "Automated update of PokéAPI types with SHA-256 prefix ${FILE_HASH} generated from the official OpenAPI specification." \
+            --head "${BRANCH}"
