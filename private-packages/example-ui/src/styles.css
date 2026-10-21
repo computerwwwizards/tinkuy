@@ -1,0 +1,180 @@
+@theme {
+  /* Figma Effects */
+  --effect-inner-2dp: inset 0px 1px 3px 1px rgb(0 0 0 / 0.25);
+  --effect-drop-2dp: 0px 1px 3px 1px rgb(0 0 0 / 0.2);
+  --effect-drop-6dp: 0px 3px 6px 2px rgb(0 0 0 / 0.2);
+
+  /* Figma Colors */
+  --color-identity-primary: #dc0a2d;
+  --color-identity-secondary: #28aafd;
+  --color-grayscale-dark: #212121;
+  --color-grayscale-medium: #666666;
+  --color-grayscale-light: #e0e0e0;
+  --color-grayscale-background: #efefef;
+  --color-grayscale-white: #ffffff;
+}
+
+@utility effect-* {
+  box-shadow: --value(--effect-*);
+}
+
+@layer components {
+  .input-frame {
+    --input-frame-effect: var(--effect-inner-2dp);
+    --input-frame-bg: var(--color-grayscale-white);
+    --input-frame-text: var(--color-grayscale-medium);
+    --icon-fill: var(--color-identity-primary);
+
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding-block: 8px;
+    padding-inline: 12px;
+    border-radius: 8px;
+
+    background-color: var(--input-frame-bg);
+    color: var(--input-frame-text);
+    box-shadow: var(--input-frame-effect);
+
+    & :where(input) {
+      border: none;
+      outline: none;
+      background: transparent;
+      color: inherit;
+      font: inherit;
+      flex: 1;
+      width: 100%;
+      min-width: 0;
+    }
+
+    &:where(:has(input:focus)) {
+      --input-frame-effect: var(--effect-drop-2dp);
+      --input-frame-text: var(--color-grayscale-dark);
+    }
+  }
+
+  .ag-layout {
+    display: grid;
+    grid-template-columns: repeat(
+      var(--ag-grid-placement, auto-fill),
+      minmax(
+        min(100%, var(--ag-min-column-size, 16rem)),
+        var(--ag-max-column-size, 1fr)
+      )
+    );
+    gap: var(--ag-grid-gap, 1.25rem);
+  }
+
+  .paper {
+    --paper-shadow: var(--effect-inner-2dp);
+
+    background-color: var(--color-grayscale-white);
+    border-radius: 8px;
+    box-shadow: var(--paper-shadow);
+
+    &.paper-drop {
+      --paper-shadow: var(--effect-drop-2dp);
+    }
+
+    &.paper-inner {
+      --paper-shadow: var(--effect-inner-2dp);
+    }
+  }
+
+  .item-card {
+    position: relative;
+    display: grid;
+    grid-row: span 3;
+    grid-template-rows: subgrid;
+    padding: 0;
+    gap: 0;
+
+    &::before {
+      content: "";
+      position: absolute;
+      inset: auto 0 0 0;
+      height: 40%;
+      background-color: var(--color-grayscale-background);
+      border-radius: 7px;
+      z-index: 0;
+    }
+
+    & :where(.item-number) {
+      justify-self: end;
+      color: var(--color-grayscale-medium);
+      font-size: 0.75rem;
+      line-height: 1rem;
+      padding-block-start: 0.25rem;
+      padding-inline-end: 0.5rem;
+      z-index: 1;
+    }
+
+    & :where(.item-img, img, svg, div:nth-child(2)) {
+      place-self: center;
+      z-index: 1;
+    }
+
+    & :where(.item-name) {
+      margin: 0;
+      place-self: center;
+      text-align: center;
+      color: var(--color-grayscale-dark);
+      font-size: 0.875rem;
+      font-weight: 400;
+      line-height: 1.25rem;
+      padding-block-end: 0.25rem;
+      z-index: 1;
+
+      & :where(a, .item-link) {
+        text-decoration: none;
+        color: inherit;
+
+        &::after {
+          content: "";
+          position: absolute;
+          inset: 0;
+          z-index: 2;
+        }
+      }
+    }
+  }
+
+  .item-number {
+    justify-self: end;
+    color: var(--color-grayscale-medium);
+    font-size: 0.75rem;
+    line-height: 1rem;
+    padding-block-start: 0.25rem;
+    padding-inline-end: 0.5rem;
+    z-index: 1;
+  }
+
+  .item-img {
+    place-self: center;
+    z-index: 1;
+  }
+
+  .item-name {
+    margin: 0;
+    place-self: center;
+    text-align: center;
+    color: var(--color-grayscale-dark);
+    font-size: 0.875rem;
+    font-weight: 400;
+    line-height: 1.25rem;
+    padding-block-end: 0.25rem;
+    z-index: 1;
+  }
+
+  .item-link {
+    text-decoration: none;
+    color: inherit;
+
+    &::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      z-index: 2;
+    }
+  }
+}

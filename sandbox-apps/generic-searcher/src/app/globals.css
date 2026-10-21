@@ -1,0 +1,107 @@
+@import "tailwindcss";
+@import "@computerwwwizards/example-ui";
+@source "../node_modules/@computerwwwizards/example-ui";
+
+@layer utilities {
+  /* Keyframes for Upper Panel: holds at 0, translates -100% Y, then visibility hidden */
+  @keyframes bootCurtainTop {
+    0%, 35% {
+      transform: translateY(0);
+      visibility: visible;
+    }
+    99% {
+      transform: translateY(-100%);
+      visibility: visible;
+    }
+    100% {
+      transform: translateY(-100%);
+      visibility: hidden;
+    }
+  }
+
+  /* Keyframes for Lower Panel: holds at 0, translates +100% Y, then visibility hidden */
+  @keyframes bootCurtainBottom {
+    0%, 35% {
+      transform: translateY(0);
+      visibility: visible;
+    }
+    99% {
+      transform: translateY(100%);
+      visibility: visible;
+    }
+    100% {
+      transform: translateY(100%);
+      visibility: hidden;
+    }
+  }
+
+  .animate-boot-curtain-top {
+    animation: bootCurtainTop 1.8s cubic-bezier(0.65, 0, 0.35, 1) forwards;
+  }
+
+  .animate-boot-curtain-bottom {
+    animation: bootCurtainBottom 1.8s cubic-bezier(0.65, 0, 0.35, 1) forwards;
+  }
+
+  /* Chacana (Andean Cross) Top Half */
+  .chacana-half-top {
+    width: 10rem;
+    height: 5rem;
+    background-color: #d97706;
+    clip-path: polygon(
+      0% 100%,
+      0% 66.66%,
+      16.66% 66.66%,
+      16.66% 33.33%,
+      33.33% 33.33%,
+      33.33% 0%,
+      66.66% 0%,
+      66.66% 33.33%,
+      83.33% 33.33%,
+      83.33% 66.66%,
+      100% 66.66%,
+      100% 100%,
+      66.66% 100%,
+      66.66% 66.66%,
+      33.33% 66.66%,
+      33.33% 100%
+    );
+  }
+
+  /* Chacana (Andean Cross) Bottom Half */
+  .chacana-half-bottom {
+    width: 10rem;
+    height: 5rem;
+    background-color: #d97706;
+    clip-path: polygon(
+      0% 0%,
+      0% 33.33%,
+      16.66% 33.33%,
+      16.66% 66.66%,
+      33.33% 66.66%,
+      33.33% 100%,
+      66.66% 100%,
+      66.66% 66.66%,
+      83.33% 66.66%,
+      83.33% 33.33%,
+      100% 33.33%,
+      100% 0%,
+      66.66% 0%,
+      66.66% 33.33%,
+      33.33% 33.33%,
+      33.33% 0%
+    );
+  }
+
+  /* Handling prefers-reduced-motion: collapse transition duration to 0s and immediately hide */
+  @media (prefers-reduced-motion: reduce) {
+    .animate-boot-curtain-top,
+    .animate-boot-curtain-bottom {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      animation-fill-mode: forwards !important;
+      visibility: hidden !important;
+      display: none !important;
+    }
+  }
+}
