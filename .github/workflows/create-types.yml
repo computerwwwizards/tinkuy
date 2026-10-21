@@ -1,4 +1,4 @@
-name: Update PokéAPI Types
+name: Update Types
 
 on:
   workflow_dispatch:
@@ -22,12 +22,12 @@ jobs:
             "https://raw.githubusercontent.com/PokeAPI/pokeapi/refs/heads/master/openapi.yml" \
             -o ./openapi.yml
 
-          npx openapi-typescript@latest ./openapi.yml -o ./pokeapi.d.ts
+          npx openapi-typescript@latest ./openapi.yml -o ./api.d.ts
 
       - name: Upload generated types as artifact
         uses: actions/upload-artifact@v6
         with:
-          name: pokeapi-types
+          name: api-types
           path: ./pokeapi.d.ts
           retention-days: 1
 
@@ -45,15 +45,15 @@ jobs:
       - name: Download generated types
         uses: actions/download-artifact@v8
         with:
-          name: pokeapi-types
+          name: api-types
           path: ./sandbox-apps/pokedex/src/types
 
       - name: Commit to content-hash branch and open PR
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          mkdir -p ./sandbox-apps/pokedex/src/types
-          TARGET_FILE="./sandbox-apps/pokedex/src/types/pokeapi.d.ts"
+          mkdir -p ./sandbox-apps/generic-search/src/types
+          TARGET_FILE="./sandbox-apps/generic-search/src/types/api.d.ts"
 
           git add -- "$TARGET_FILE"
 
@@ -64,17 +64,17 @@ jobs:
 
           sha256sum "$TARGET_FILE" | cut -c1-12 > /tmp/file_hash.txt
           read -r FILE_HASH < /tmp/file_hash.txt
-          BRANCH="chore/pokeapi-types-${FILE_HASH}"
+          BRANCH="chore/api-types-${FILE_HASH}"
 
 
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
           git checkout -b "${BRANCH}"
-          git commit -m "chore: update PokéAPI types ${FILE_HASH}"
+          git commit -m "chore: update API types ${FILE_HASH}"
           git push origin "${BRANCH}"
 
           gh pr create \
-            --title "chore: update PokéAPI types ${FILE_HASH}" \
+            --title "chore: update API types ${FILE_HASH}" \
             --body "Automated update of PokéAPI types with SHA-256 prefix ${FILE_HASH} generated from the official OpenAPI specification." \
             --head "${BRANCH}"
